@@ -5,8 +5,22 @@ import rospy
 import time
 from std_msgs.msg import Float64
 from control_msgs.msg import JointControllerState
+from sensor_msgs.msg import JointState
 import tf
 from ur_ikfast import ur_kinematics
+#import kineik
+
+import roboticstoolbox as rtb
+import numpy as np
+#pel dmp:
+import roslib; 
+roslib.load_manifest('dmp')
+import rospy 
+import numpy as np
+from dmp.srv import *
+from dmp.msg import *
+import sys
+import random
 
 
 class UR3Reach():
@@ -26,6 +40,8 @@ class UR3Reach():
         }
         # Initialize a dictionary to store joint position/set_point/error
         self.joint = {}
+        self.pos={}
+        self.traj=[]
         # Initialize TF listener
         self.listener = tf.TransformListener()
         # Run publishers
@@ -46,6 +62,21 @@ class UR3Reach():
         self.joint['set_point'] = msg.set_point
         self.joint['process_value'] = msg.process_value
         self.joint['error'] = msg.error
+        
+        
+    def state_callback2(self, msg):
+
+        """ Stores in a dictionary the set point
+        of a joint, its actual position and the pose error
+        measured as the difference between the desired position
+        and the current one.
+        :return:
+        """
+
+        self.pos['name'] = msg.name
+        
+        self.pos['position'] = msg.position
+        self.pos['tpm'] = msg.effort
 
     def wait_for_confirmation(self, timeout, max_error):
 
@@ -110,6 +141,19 @@ class UR3Reach():
     	return set_p
     	sub.unregister()
 
+    def get_pose2(self):
+    	
+    	#topic = '/ur3/' + joint + '_position_controller/state'
+    	topic='/ur3/joint_states'
+    	sub = rospy.Subscriber(topic, JointState, self.state_callback2)
+    	# Make sure the subscriber has information
+    	#sys.stdout.write('aaaaaaaaaaaaaaaaaaaaaaah '+format(self.pos)+'\n')
+    	while not self.pos:
+            self.rate.sleep()
+    	# Make sure the final pose matches the query
+    	set_p= self.pos['position']
+    	
+    	sub.unregister()
 
 
     def publish_pos(self, joint, query):
@@ -158,6 +202,7 @@ class UR3Reach():
         """ Main executor. The program runs until it's interrupted. """
 
         query = 1
+        ur3_arm = ur_kinematics.URKinematics('ur3')
         #raw_input('Please, press <enter> to run the program...')
         # Clean terminal
         sys.stderr.write("\x1b[2J\x1b[H")
@@ -166,7 +211,7 @@ class UR3Reach():
             
             #working mode 
             mode=input('Enter the mode: 1 normal, 2 for try')
-            mode = int(mode)
+            mode = 1
             if mode > 2:
             	mode = 1
             if mode == 1:
@@ -204,8 +249,22 @@ class UR3Reach():
             	rot =  [round(x, 4) for x in rot]
             	# Show summary
             	self.print_summary_report(trans, rot)
+            	self.get_pose2()
+            	joint_angles=self.pos['position']
+            	print(joint_angles)
+            	sys.stdout.write('joint angles' + format(joint_angles)+'\n')
+            	pose_EE = ur3_arm.forward(joint_angles)
+            	sys.stdout.write('pose _EE with inv of joints '+format(pose_EE)+'\n')
             	# Update query counter
             	query += 1
+            	
+            	
+            	
+            	
+            	
+            	
+            	
+            	
             	
             else:
             	sys.stdout.write('Here we are on the play field\n')

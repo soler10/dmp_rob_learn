@@ -2,7 +2,7 @@
 
 <launch>
 
-  <node pkg="my_ur3_reach" type="ur3_margarita.py" name="ur3_reach_abril" output="screen">
+  <node pkg="my_ur3_reach" type="ur3_margarita_v2.py" name="ur3_reach_abril" output="screen">
   </node>
 
 </launch>

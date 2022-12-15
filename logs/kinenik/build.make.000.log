@@ -1,0 +1,8 @@
+[35m[1mScanning dependencies of target kinenik[0m
+[ 25%] [32mBuilding CXX object CMakeFiles/kinenik.dir/src/kinenik_ur.cpp.o[0m
+[ 50%] [32m[1mLinking CXX shared library libkinenik.so[0m
+[ 50%] Built target kinenik
+[35m[1mScanning dependencies of target test_kinenik_ur[0m
+[ 75%] [32mBuilding CXX object CMakeFiles/test_kinenik_ur.dir/src/test_kinenik_ur.cpp.o[0m
+[100%] [32m[1mLinking CXX executable test_kinenik_ur[0m
+[100%] Built target test_kinenik_ur

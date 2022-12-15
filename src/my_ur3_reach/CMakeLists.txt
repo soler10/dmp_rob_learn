@@ -7,6 +7,10 @@ project(my_ur3_reach)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
+
+
+
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
@@ -15,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+find_package(kinenik REQUIRED)
+get_target_property(kinenik_INCLUDE_DIRS ${kinenik_LIBRARIES} INTERFACE_INCLUDE_DIRECTORIES)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 

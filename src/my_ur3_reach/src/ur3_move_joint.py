@@ -157,6 +157,22 @@ class UR3Reach():
     	set_p= self.pos['position']
     	sub.unregister()
     	
+    	
+    def get_pose(self):
+    	
+    	#topic = '/ur3/' + joint + '_position_controller/state'
+    	topic='/ur3/joint_states'
+    	sub = rospy.Subscriber(topic, JointState, self.state_callback2)
+    	# Make sure the subscriber has information
+    	#sys.stdout.write('aaaaaaaaaaaaaaaaaaaaaaah '+format(self.pos)+'\n')
+    	while not self.pos:
+            self.rate.sleep()
+    	# Make sure the final pose matches the query
+    	set_p= self.pos['position']
+    	
+    	sub.unregister()
+
+    	
     	   
     def define_trajectory(self):
     	ur3e_arm = ur_kinematics.URKinematics('ur3')
@@ -228,8 +244,9 @@ class UR3Reach():
         
         
         #raw_input('Please, press <enter> to run the program...')
-        # Clean terminal
-        sys.stderr.write("\x1b[2J\x1b[H")
+        self.get_pose()
+        joint_angles_ini=self.pos['position']
+        #sys.stderr.write("\x1b[2J\x1b[H")
         while not rospy.is_shutdown():
 
             
@@ -253,7 +270,20 @@ class UR3Reach():
 
                 continue
             # Ask set-point
-            query_position = input('Enter the position to move this joint to: ')
+            move= str(input('Enter up or down: [u/d]: '))
+            #troba ultima join value
+            ###########################################################################################3################################
+            #trobar la puta query position!!!!!
+            self.get_pose()
+            joint_angles_ini=self.pos['position']
+            query_position=joint_angles[query_joint-1]
+            #query_position=joint
+            sys.stdout.write('query_position'+format(query_position))
+            if move == 'u':
+            	query_position = query_position + 0.05
+            else:
+            	query_position=query_position - 0.05
+            	
             query_position=float(query_position)
             # Send position to robot
             self.publish_pos(self.joints[query_joint], query_position)
